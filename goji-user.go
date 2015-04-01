@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/fluxxu/auth"
+	"github.com/fluxxu/goji-auth"
 	"github.com/jmoiron/sqlx"
 	"github.com/zenazn/goji/web"
 )
