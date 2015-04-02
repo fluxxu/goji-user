@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func RouteInit(c web.C, w http.ResponseWriter, r *http.Request) {
+func routeInit(c web.C, w http.ResponseWriter, r *http.Request) {
 	var count int
 	err := opts.Dbx.Get(&count, "SELECT COUNT(*) FROM user")
 	if err != nil {
@@ -50,4 +50,47 @@ func RouteInit(c web.C, w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.Response(w).Send(200, u)
+}
+
+func routePost(c web.C, w http.ResponseWriter, r *http.Request) {
+	req := util.Request(r)
+	res := util.Response(w)
+	type reqBody struct {
+		Email       string `json:"email"`
+		Password    string `json:"password"`
+		DisplayName string `json:"display_name"`
+	}
+	var body reqBody
+	err := req.DecodeBody(&body)
+	if err != nil {
+		res.Error("can not parse body: " + err.Error())
+		return
+	}
+
+	u := NewUser()
+	u.Email = body.Email
+	u.Password = body.Password
+	u.DisplayName = body.DisplayName
+	if err = u.Insert(); err != nil {
+		if ve, ok := err.(util.ValidationErrorInterface); ok {
+			res.Error(err.Error(), 400, ve.ToResponseData())
+			return
+		}
+		res.Error(err.Error())
+		return
+	}
+
+	res.Send(200, u)
+}
+
+func routeList(c web.C, w http.ResponseWriter, r *http.Request) {
+	res := util.Response(w)
+	p := NewUserProvider()
+	p.ParseRequest(r)
+	users := []User{}
+	if err := p.Read(&users); err != nil {
+		res.Error(err.Error())
+		return
+	}
+	res.Send(200, users)
 }
