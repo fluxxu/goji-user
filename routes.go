@@ -1,11 +1,13 @@
 package user
 
 import (
+	"github.com/fluxxu/goji-rbac"
 	"github.com/fluxxu/util"
 	"github.com/zenazn/goji/web"
 	"net/http"
 )
 
+//create root user and admin role
 func routeInit(c web.C, w http.ResponseWriter, r *http.Request) {
 	var count int
 	err := opts.Dbx.Get(&count, "SELECT COUNT(*) FROM user")
@@ -87,10 +89,11 @@ func routeList(c web.C, w http.ResponseWriter, r *http.Request) {
 	res := util.Response(w)
 	p := NewUserProvider()
 	p.ParseRequest(r)
-	users := []User{}
-	if err := p.Read(&users); err != nil {
+	data := []User{}
+	resData, err := p.Read(&data)
+	if err != nil {
 		res.Error(err.Error())
 		return
 	}
-	res.Send(200, users)
+	res.Send(200, resData)
 }

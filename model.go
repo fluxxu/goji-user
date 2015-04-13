@@ -25,6 +25,8 @@ type User struct {
 	DisplayName string        `db:"display_name" json:"display_name" provider:"sort filter"`
 	CreatedAt   util.NullTime `db:"created_at" json:"created_at" provider:"sort"`
 	UpdatedAt   util.NullTime `db:"updated_at" json:"updated_at" provider:"sort"`
+
+	Roles []string `json:"roles"`
 }
 
 func (u *User) SetPassword(password string) *User {
